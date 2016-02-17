@@ -1,0 +1,7 @@
+uploads/*
+bk
+ve
+*~
+*.pyc
+__secrets__.py
+
