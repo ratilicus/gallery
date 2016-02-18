@@ -58,8 +58,15 @@ function handleDrop(event) {
                 window.canvas.remove(window.img);
             }
             window.img = new fabric.Image(imgEl);
-
-            window.uploadImage(window.img, {size: 'full'});
+            var data = {
+                filename: imgFile.name,
+                size: 'full'
+            }
+            window.uploadImage(window.img, data, null, function(result_str) {
+                var result = JSON.parse(result_str);
+                console.log(result);
+                window.img_id = result.data.id;
+            });
 
             window.canvas.add(window.img);
 
@@ -75,7 +82,6 @@ function handleDrop(event) {
                     window.canvas.renderAll();
                 }
             }, false);
-
 
             window.thumb4x3 = new fabric.Rect({
                 left: 50, top: 100,
@@ -115,7 +121,7 @@ window.scaleCenter = function(scale) {
     window.img.setLeft(250 - window.img.getWidth()/2);
 }
 
-window.uploadImage = function(img, options, cropObj) {
+window.uploadImage = function(img, options, cropObj, callback) {
     var options = options || {};
     var imgOpts = {format: 'jpeg', quality: 0.8};
     if (cropObj) {
@@ -125,13 +131,17 @@ window.uploadImage = function(img, options, cropObj) {
         options.width = imgOpts.width = cropObj.getWidth();
     }
     options.data = img.toDataURL(imgOpts);
-    $.ajax({type: 'POST', url: '/upload/', data: options});
+    $.ajax({type: 'POST', url: '/upload/', data: options, success: callback});
 }
 
 document.querySelector('#b').addEventListener('click', function(event) {
     // loop over checkboxed regions.. clip image to them... and upload
     $('input.thumbs:checked').each(function(i, te) {
-        window.uploadImage(window.img, {size: te.id.split('-')[1], }, window[te.value]);
+        var data = {
+            id: window.img_id,
+            size: te.id.split('-')[1]
+        }
+        window.uploadImage(window.img, data, window[te.value]);
     });
 }, false); 
 

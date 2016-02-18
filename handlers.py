@@ -1,74 +1,21 @@
 '''
-7D2D map markers Tornado Server
+Gallery Tornado Server View Handlers
 by: Adam Dybczak (RaTilicus)
-
-user: [{
-    _id: objectid,
-    username: str,
-    name: str,
-    password: str,
-    admin: bool
-},]
-
-source_image: [{
-    _id: objectid,
-    uploader: user._id
-    editors: [user._id,],
-    approval: {user._id: {status: int, reason: str},},  # approval status: 1:approve, 0:abstain, -1:deny
-    alt: str, 
-    desc: str, 
-    width: int, 
-    height: int,
-    filename: str,
-    catalogs: [
-        {image_id: objectid, catalog_id: catalog._id, center: [int, int], scale: float, rotation: int},
-    ],
-    created: datetime,
-},]
-
-catalog: {
-    _id: objectid,
-    title: str,
-    description: str,
-    editors: [user._id,],
-    viewers: [user._id,],
-    approval: {user._id: {status: int, reason: str},},  # approval status: 1:approve, 0:abstain, -1:deny
-    public: bool
-    images: [
-        {_id: objectid, source: source_image._id, filename: str, width: int, height: int, 
-         cellx: int, celly: int, cellw:int, cellh: int, approved: bool},
-    ]
-    created: datetime,
-}
-
-comment: [{
-    _id: objectid,
-    catalog: catalog._id,
-    image: catalog.images._id
-    owner: 
-
-
-- upload/delete images
-- re-arrange images
-- scale/crop/rotate images
-- catalogs add/modify/remove    (title: str, desc: str, editors: [], viewers: [], images: [])
-- comments 
-
-
 '''
 
 import tornado.web
 from json import loads as json_decode, dumps as json_encode
 from tornado import gen
 from base64 import b64decode
+from bson import ObjectId
 
 
 class P(dict):
     def get(self, name, default=None):
-        return super(P, self).get(name, default)[0]
+        return super(P, self).get(name)[0] if name in self else default
 
     def pop(self, name, default=None):
-        return super(P, self).pop(name, default)[0]
+        return super(P, self).pop(name, default)[0] if name in self else default
 
     def dict(self):
         return {k: v[0] for k,v in super(P, self).items()}
@@ -123,14 +70,16 @@ class DataHandler(BaseHandler):
 class UploadHandler(BaseHandler):
     @gen.coroutine
     def post(self):
+        _id = self.POST.get('id', None)
         size = self.POST.get('size', 'full')
         header, binary_data = self.POST.pop('data').split(',', 1)
         print self.POST.dict(), len(binary_data)
         file_data = b64decode(binary_data)
-        with open('uploads/out_{}.jpg'.format(size), 'wb') as of:
+        _id = ObjectId(_id)
+        with open('uploads/{}_{}.jpg'.format(_id, size), 'wb') as of:
             of.write(file_data)
         
-        data={}
-        self.json_response(self, data, success=True)
+        data={'id': str(_id)}
+        self.json_response(data, success=True)
 
 
