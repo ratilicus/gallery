@@ -28,6 +28,7 @@ class BaseHandler(tornado.web.RequestHandler):
         ''' handler init
         - set self.POST from request body, decode json if request is json
         '''
+        self.db = self.settings['db']
         self.POST = {}
         if self.request.method in ['POST', 'PUT'] and self.request.body:
             try:
@@ -60,23 +61,47 @@ class IndexHandler(BaseHandler):
         data = {}
         self.render('templates/index.html', **data)
 
-class DataHandler(BaseHandler):
+
+class ImageHandler(BaseHandler):
     @gen.coroutine
     def get(self):
         data = {}
+        objs = []
+        query = {
+            'pid': {'$ne': None}
+        }
+        cursor = self.db.img.find(query)
+        while (yield cursor.fetch_next):
+            obj = cursor.next_object()
+            obj['_id'] = str(obj['_id'])
+            obj['pid'] = str(obj['pid'] or '') or None
+            objs.append(obj)
+        data['objs'] = objs
+        print data
         self.json_response(data, success=True)
+
+
+class EditorHandler(BaseHandler):
+    @gen.coroutine
+    def get(self):
+        data = {}
+        self.render('templates/editor.html', **data)
+
 
 #ref: http://stackoverflow.com/questions/11909397/how-to-upload-an-image-with-python-tornado-from-an-html-form
 class UploadHandler(BaseHandler):
     @gen.coroutine
     def post(self):
-        _id = self.POST.get('id', None)
+        parent_id = self.POST.get('id', None)
         size = self.POST.get('size', 'full')
         header, binary_data = self.POST.pop('data').split(',', 1)
-        print self.POST.dict(), len(binary_data)
+        data, filesize = self.POST.dict(), len(binary_data)
+        data['_id'] = _id = ObjectId()
+        data['fs'] = filesize
+        data['pid'] = ObjectId(parent_id) if parent_id else None
+        self.db.img.insert(data)
         file_data = b64decode(binary_data)
-        _id = ObjectId(_id)
-        with open('uploads/{}_{}.jpg'.format(_id, size), 'wb') as of:
+        with open('uploads/{}.jpg'.format(_id), 'wb') as of:
             of.write(file_data)
         
         data={'id': str(_id)}

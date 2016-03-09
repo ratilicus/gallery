@@ -1,156 +1,49 @@
 {% extends "base.html" %}
+{% block title %}: Index{% end %}
 
 {% block head %}
 <script src="/static/fabric.js?t={{t}}"></script>
 
 <style>
-#drop {
-    min-height: 100px;
-    width: 200px;
-    border: 3px dashed #ccc;
-    margin: 10px;
-    padding: 10px;
+.i {
+    float: left;
+    border: 1px solid black;
+    margin: 3px;
+    display: inline-block;
 }
-p {
-    margin: 3px 0;
+.i3x4 {
+    width: 300px;
+    height: 400px;
 }
-#c {
-    border: 1px solid #ccc;
+.i4x3 {
+    width: 400px;
+    height: 300px;
+}
 
-}
-
-.thumbs {
-    visibility: hidden;
-}
 </style>
 {% end %}
 
 {% block body %}
 
-<canvas id="c" width="500" height="500"></canvas><br>
+<div id="ct"></div>
 
-<span id="thumbs-full-size"></span><br>
 
-<input type="checkbox" class="thumbs" id="thumbs-300x400" value="thumb3x4">
-<label class="thumbs" for="thumbs-300x400">300x400 Thumbnail</label><br>
-
-<input type="checkbox" class="thumbs" id="thumbs-400x300" value="thumb4x3">
-<label class="thumbs" for="thumbs-400x300">400x300 Thumbnail</label><br>
-
-<button id="b">Save</button>
 <script type="text/javascript">
-function handleDragOver(event) {
-    event.stopPropagation();
-    event.preventDefault();
-}
-function handleDrop(event) {
-    handleDragOver(event);
-
-    var imgFile = event.dataTransfer.files[0];
-    var imgEl = document.createElement("img");
-
-    var reader = new FileReader();
-    reader.onload = (function(imgEl) { 
-        return function(e) { 
-            console.log('onLoad');
-            imgEl.src = e.target.result;
-            if (window.img) {
-                window.canvas.remove(window.img);
-            }
-            window.img = new fabric.Image(imgEl);
-            var data = {
-                filename: imgFile.name,
-                size: 'full'
-            }
-            window.uploadImage(window.img, data, null, function(result_str) {
-                var result = JSON.parse(result_str);
-                console.log(result);
-                window.img_id = result.data.id;
-            });
-
-            window.canvas.add(window.img);
-
-            window.img.centeredScaling = true;
-            s=Math.min(1.0*window.canvas.height/window.img.height, 
-                       1.0*window.canvas.width/window.img.width, 1.0)
-            window.scaleCenter(s);
-
-            window.addEventListener("mousewheel", function(event) {
-                if (window.img) {
-                    var scale = window.img.scaleX*(event.deltaY > 0 ? 1.1 : 0.9);
-                    window.scaleCenter(scale);
-                    window.canvas.renderAll();
-                }
-            }, false);
-
-            window.thumb4x3 = new fabric.Rect({
-                left: 50, top: 100,
-                width: 400, height: 300,
-                fill: 'rgba(100,100,250,0.33)'
-            })
-            window.thumb4x3.hasControls = false;
-            window.thumb4x3.visible = false;
-            window.canvas.add(window.thumb4x3);
-            window.thumb3x4 = new fabric.Rect({
-                left: 100, top: 50,
-                width: 300, height: 400,
-                fill: 'rgba(100,250,100,0.33)'
-            })
-            window.thumb3x4.hasControls = false;
-            window.thumb3x4.visible = false;
-            window.canvas.add(window.thumb3x4);
-            
-            $('#thumbs-full-size').html('Full image: '+window.img.width+'x'+window.img.height);
-            $('.thumbs').css('visibility', 'visible');
-
-            window.canvas.renderAll();
-        }; 
-    })(imgEl);
-    reader.readAsDataURL(imgFile);
-}
-
-window.canvas = new fabric.Canvas('c');
-
-var drop = window.canvas.wrapperEl//document.querySelector('#c');  
-drop.addEventListener('dragover', handleDragOver, false); 
-drop.addEventListener('drop', handleDrop, false);  
-
-window.scaleCenter = function(scale) {
-    window.img.scale(scale);
-    window.img.setTop(250 - window.img.getHeight()/2);
-    window.img.setLeft(250 - window.img.getWidth()/2);
-}
-
-window.uploadImage = function(img, options, cropObj, callback) {
-    var options = options || {};
-    var imgOpts = {format: 'jpeg', quality: 0.8};
-    if (cropObj) {
-        options.top = imgOpts.top = cropObj.getTop() - img.getTop();
-        options.left = imgOpts.left = cropObj.getLeft() - img.getLeft();
-        options.height = imgOpts.height = cropObj.getHeight();
-        options.width = imgOpts.width = cropObj.getWidth();
-    }
-    options.data = img.toDataURL(imgOpts);
-    $.ajax({type: 'POST', url: '/upload/', data: options, success: callback});
-}
-
-document.querySelector('#b').addEventListener('click', function(event) {
-    // loop over checkboxed regions.. clip image to them... and upload
-    $('input.thumbs:checked').each(function(i, te) {
-        var data = {
-            id: window.img_id,
-            size: te.id.split('-')[1]
-        }
-        window.uploadImage(window.img, data, window[te.value]);
+var data = {};
+function callback(result_str) {
+    var result = JSON.parse(result_str);
+    var ct = $('#ct');
+    console.log(result);
+    result.data.objs.forEach(function(item) {
+        var el = $('<div>');
+        el.addClass('i');
+        el.addClass('i'+item.size);
+        el.css('background-image', 'url("/static/img/'+item._id+'.jpg")');
+        ct.append(el);
     });
-}, false); 
+}
 
-$('.thumbs').on('click', function(event) {
-    $('input.thumbs').each(function(i, te) {
-        window[te.value].visible = te.checked
-    });
-    window.canvas.renderAll();
-}); 
+$.ajax({type: 'GET', url: '/image/', data: data, success: callback});
 </script>
 {% end %}
 

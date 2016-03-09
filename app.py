@@ -8,11 +8,13 @@ by: Adam Dybczak (RaTilicus)
 import time
 import tornado.web, tornado.ioloop
 from tornado import gen
-from handlers import IndexHandler, UploadHandler
+from handlers import IndexHandler, ImageHandler, EditorHandler, UploadHandler
+import motor
 
 
 if __name__ == '__main__':
     print 'INIT'
+    db = motor.MotorClient().gallery
 
     SETTINGS = {
         't': int(time.time()),
@@ -22,6 +24,8 @@ if __name__ == '__main__':
         'autoreload': True,
         'debug': True,
         'STATIC_PATH': 'static',
+        'UPLOAD_PATH': 'uploads',
+        'db': db,
     }
 
     try:
@@ -33,7 +37,10 @@ if __name__ == '__main__':
 
     URLS = (
         (r"^/$", IndexHandler),
+        (r"^/image/$", ImageHandler),
+        (r"^/editor/$", EditorHandler),
         (r"^/upload/$", UploadHandler),
+        (r"^/static/img/(.*)", tornado.web.StaticFileHandler, {'path': SETTINGS['UPLOAD_PATH']}),
         (r'^/static/(.*)', tornado.web.StaticFileHandler, {'path': SETTINGS['STATIC_PATH']}),
     )
 
