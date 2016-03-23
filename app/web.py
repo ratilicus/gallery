@@ -14,7 +14,7 @@ import motor
 
 if __name__ == '__main__':
     print 'INIT'
-    db = motor.MotorClient().gallery
+    db = motor.MotorClient(host='db').gallery
 
     SETTINGS = {
         't': int(time.time()),
@@ -23,8 +23,8 @@ if __name__ == '__main__':
         #'xsrf_cookies': True,
         'autoreload': True,
         'debug': True,
-        'STATIC_PATH': 'static',
-        'UPLOAD_PATH': 'uploads',
+        'STATIC_PATH': '/www/app/static',
+        'UPLOAD_PATH': '/data/uploads',
         'db': db,
     }
 

@@ -1,7 +1,5 @@
-uploads/*
+data
 bk
-ve
-*~
 *.pyc
 __secrets__.py
 

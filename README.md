@@ -9,6 +9,7 @@ A simple program for uploading and manipulating images
 - drag and drop image upload (html5)
 - front-end image scaling/thumbing/cropping (using fabricjs library)
 - ajax image+thumb upload
+- docker deployment
 
 ### Planned Features
 
@@ -28,22 +29,28 @@ A simple program for uploading and manipulating images
 ### Install
 
 ```
-# dev env ubuntu 14.04
+# clone this repo
 git clone https://github.com/ratilicus/gallery.git
-cd gallery
-./setup.ubuntu14.04.sh
 
-# dedicated machine/virtualbox
-TBD - probably fabric script
+# install docker
+https://docs.docker.com/linux/step_one/
 ```
 
-### Run
+### Build containers
+```
+./build.sh
+```
+
+### Start containers
 
 ```
-# dev env
-cd <path-to-gallery-repo>
-source ve/bin/activate
-./app.py
+./start.sh
+```
+
+### Stop containers
+
+```
+./stop.sh
 ```
 
 ### TODO

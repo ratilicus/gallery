@@ -101,7 +101,7 @@ class UploadHandler(BaseHandler):
         data['pid'] = ObjectId(parent_id) if parent_id else None
         self.db.img.insert(data)
         file_data = b64decode(binary_data)
-        with open('uploads/{}.jpg'.format(_id), 'wb') as of:
+        with open('{}/{}.jpg'.format(self.settings['UPLOAD_PATH'], _id), 'wb') as of:
             of.write(file_data)
         
         data={'id': str(_id)}
