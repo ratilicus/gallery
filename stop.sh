@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker stop $(docker ps -q)
-docker rm $(docker ps -aq)
+docker stop $(docker ps --filter="name=db|app" -q)
+docker rm $(docker ps --filter="name=db|app" -aq)

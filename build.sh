@@ -1,9 +1,11 @@
 #!/bin/bash
 
-APPPATH=$(dirname $(readlink -f "$0"))
+CD=$(dirname $(readlink -f "$0"))
 
-cd $APPPATH
+cd $CD
 
-docker build -t rat/mongo mongo
-docker build -t rat/app app
+(docker build -t rat/mongo mongo) &&
+(docker build -t rat/app app) &&
+(echo "OK: build successful!") ||
+(echo "FAIL: build failed!")
 

@@ -1,14 +1,17 @@
 #!/bin/bash
 
-APPPATH=$(dirname $(readlink -f "$0"))
+CD=$(dirname $(readlink -f "$0"))
+DATAVOL=$CD/data:/data
+APPVOL=$CD/app:/www/app
 
-cd $APPPATH
-mkdir -p $APPPATH/data/db
-mkdir -p $APPPATH/data/uploads
+cd $CD
+mkdir -p $CD/data/db
+mkdir -p $CD/data/log
+mkdir -p $CD/data/uploads
 
-#docker run -v $APPPATH/data:/data -i --rm=true --name db rat/mongo &
-#docker run -v $APPPATH/data:/data -i --rm=true -p 8000:8000 --name app --link db rat/app &
+(docker run -d -v $DATAVOL --name db rat/mongo) &&
+(docker run -d -v $DATAVOL -v $APPVOL -p 8000:8000 --name app --link db rat/app) &&
+(docker ps) &&
+(echo "OK: app started!  (browse to locahost:8000 to see app)") ||
+(echo "FAIL: app run failedstarted! (did you run build.sh?)")
 
-(docker run -v $APPPATH/data:/data -d --name db rat/mongo) &&
-(docker run -v $APPPATH/data:/data -d -p 8000:8000 --name app --link db rat/app) &&
-docker ps
