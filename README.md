@@ -32,29 +32,18 @@ A simple program for uploading and manipulating images
 # clone this repo
 git clone https://github.com/ratilicus/gallery.git
 
-# install docker
-https://docs.docker.com/linux/step_one/
+# install docker + docker compose
+https://docs.docker.com/compose/install/
 ```
 
-### Build containers
-```
-./build.sh
-```
-
-### Start containers
+### Build + Start containers
 
 ```
-./start.sh
+docker-compose up
 ```
 
-### Stop containers
-
-```
-./stop.sh
-```
 
 ### TODO
 
-- dedicated machine/virtualbox setup (Fabric script?)
 - upstart scripts/setup
 - planned features

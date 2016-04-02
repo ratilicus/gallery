@@ -1,0 +1,18 @@
+version: '2'
+services:
+  db:
+    image: mongo:3.0
+  web:
+    build: app
+    working_dir: /www/app
+    command: python web.py
+    ports:
+    - "8000:8000"
+    volumes:
+    - ./app:/www/app
+    - /data
+    depends_on:
+    - db
+    links:
+    - db
+

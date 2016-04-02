@@ -10,6 +10,7 @@ import tornado.web, tornado.ioloop
 from tornado import gen
 from handlers import IndexHandler, ImageHandler, EditorHandler, UploadHandler
 import motor
+import os
 
 
 if __name__ == '__main__':
@@ -27,6 +28,8 @@ if __name__ == '__main__':
         'UPLOAD_PATH': '/data/uploads',
         'db': db,
     }
+
+    os.makedirs(SETTINGS['UPLOAD_PATH'])
 
     try:
         # update settings based on secrets file (not to be shared with github)

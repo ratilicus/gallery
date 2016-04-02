@@ -1,3 +1,0 @@
-tornado 
-pymongo==2.8
-motor
