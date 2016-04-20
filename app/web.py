@@ -29,7 +29,8 @@ if __name__ == '__main__':
         'db': db,
     }
 
-    os.makedirs(SETTINGS['UPLOAD_PATH'])
+    if not os.path.exists(SETTINGS['UPLOAD_PATH']):
+        os.makedirs(SETTINGS['UPLOAD_PATH'])
 
     try:
         # update settings based on secrets file (not to be shared with github)
