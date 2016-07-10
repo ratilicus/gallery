@@ -2,4 +2,4 @@ data
 bk
 *.pyc
 __secrets__.py
-
+.idea
