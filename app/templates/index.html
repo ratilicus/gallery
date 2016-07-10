@@ -2,82 +2,33 @@
 {% block title %}: Index{% end %}
 
 {% block head %}
-<script src="/static/fabric.js?t={{t}}"></script>
-<link rel="stylesheet" type="text/css" href="/static/jquery.gridster.min.css">
+<link rel="stylesheet" href="/static/justifiedGallery.min.css" />
+<script src="/static/jquery.justifiedGallery.min.js"></script>
+
 <style>
-
-.gridster * {
-    margin: 0;
-    padding: 0;
-}
-ul {
-    list-style-type: none;
-}
-
-.gridster li {
-    font-size: 1em;
-    font-weight: bold;
-    text-align: center;
-    line-height: 100%;
-    background-repeat: no-repeat;
-}
-.gridster li header {
-    background: #999999;
-    display: block;
-    font-size: 6px;
-    line-height: normal;
-    padding: 4px 0 6px;
-//    margin-bottom: 20px;
-    cursor: move;
-}
-
 </style>
 {% end %}
 
 {% block body %}
 
-<div class="gridster"><ul></ul></div>
-<script src="/static/jquery.gridster.min.js" type="text/javascript" charset="utf-8"></script>
+<div id="gallery"></div>
 
 <script type="text/javascript">
-  var gridster;
+    var tpl = function(img) {return $('<img src="/static/img/'+img+'.jpg">');}
 
-  $(function(){
+    var data = {};
+    function callback(result_str) {
+        var result = JSON.parse(result_str);
+        var gallery = $('#gallery');
+        console.log(result);
+        result.data.objs.forEach(function(item) {
+            console.log([item, tpl(item._id)]);
+            gallery.append(tpl(item._id));
+        });
+        gallery.justifiedGallery();
+    }
 
-    window.gridster = $(".gridster > ul").gridster({
-        widget_margins: [5, 5],
-        widget_base_dimensions: [92, 92],
-        min_cols: 6,
-        resize: {
-            enabled: true,
-            stop: function(e, ui, $widget) {
-                console.log('STOP', ui);
-                window.gridster.serialize();
-            }
-        },
-        draggable: {
-            handle: 'header',
-            stop: function(e, ui, $widget) {
-                console.log('STOP', ui);
-                window.gridster.serialize();
-            }
-        }
-    }).data('gridster');
-  });
-
-    var tpl = function(img) {return '<li class="i" style="background-image:url(\'/static/img/'+img+'.jpg\')"><div class="title"><header>|||</header></div></li>'}
-
-var data = {};
-function callback(result_str) {
-    var result = JSON.parse(result_str);
-    var ct = $('#ct');
-    console.log(result);
-    result.data.objs.forEach(function(item) {
-        window.gridster.add_widget.apply(window.gridster, [tpl(item._id), item.width/100, item.height/100])
-    });
-}
-
-$.ajax({type: 'GET', url: '/image/', data: data, success: callback});
+    $.ajax({type: 'GET', url: '/image/', data: data, success: callback});
 
 </script>
 {% end %}
