@@ -77,7 +77,7 @@ class ImageHandler(BaseHandler):
             obj['pid'] = str(obj['pid'] or '') or None
             objs.append(obj)
         data['objs'] = objs
-        print data
+
         self.json_response(data, success=True)
 
 
@@ -99,7 +99,7 @@ class UploadHandler(BaseHandler):
         data['_id'] = _id = ObjectId()
         data['fs'] = filesize
         data['pid'] = ObjectId(parent_id) if parent_id else None
-        self.db.img.insert(data)
+        yield self.db.img.insert(data)
         file_data = b64decode(binary_data)
         with open('{}/{}.jpg'.format(self.settings['UPLOAD_PATH'], _id), 'wb') as of:
             of.write(file_data)

@@ -36,6 +36,11 @@ git clone https://github.com/ratilicus/gallery.git
 https://docs.docker.com/compose/install/
 ```
 
+### Test
+```
+docker-compose run web python tests.py
+```
+
 ### Build + Start containers
 
 ```
