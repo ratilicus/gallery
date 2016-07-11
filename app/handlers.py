@@ -1,7 +1,8 @@
-'''
+"""
 Gallery Tornado Server View Handlers
 by: Adam Dybczak (RaTilicus)
-'''
+"""
+
 
 import tornado.web
 from json import loads as json_decode, dumps as json_encode
@@ -18,16 +19,15 @@ class P(dict):
         return super(P, self).pop(name, default)[0] if name in self else default
 
     def dict(self):
-        return {k: v[0] for k,v in super(P, self).items()}
-
+        return {k: v[0] for k, v in super(P, self).items()}
 
 
 class BaseHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def prepare(self):
-        ''' handler init
+        """ handler init
         - set self.POST from request body, decode json if request is json
-        '''
+        """
         self.db = self.settings['db']
         self.POST = {}
         if self.request.method in ['POST', 'PUT'] and self.request.body:
@@ -38,15 +38,15 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @gen.coroutine
     def render(self, template, **data):
-        ''' render template override
+        """ render template override
         adds extra common template variables
-        '''
+        """
         data['t'] = self.settings['t']
         super(BaseHandler, self).render(template, **data)
 
     @gen.coroutine
     def json_response(self, data, success=False, errors=[]):
-        ''' json response helper '''
+        """ json response helper """
         self.write(json_encode({
             'data': data,
             'success': success,
@@ -104,7 +104,7 @@ class UploadHandler(BaseHandler):
         with open('{}/{}.jpg'.format(self.settings['UPLOAD_PATH'], _id), 'wb') as of:
             of.write(file_data)
         
-        data={'id': str(_id)}
+        data = {'id': str(_id)}
         self.json_response(data, success=True)
 
 

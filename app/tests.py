@@ -1,14 +1,22 @@
+#!ve/bin/python
+
+
+"""
+Gallery Tornado Server Tests
+by: Adam Dybczak (RaTilicus)
+"""
+
+
 import unittest
 from tornado.testing import AsyncHTTPTestCase
 import motor
 import pymongo
 from bson import ObjectId
-
-from tornado import gen
 import web
 import os
 import shutil
-from json import loads as json_decode, dumps as json_encode
+from json import loads as json_decode
+
 
 class TestWebApp(AsyncHTTPTestCase):
     def get_app(self):
@@ -43,14 +51,14 @@ class TestWebApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 200)
         json = json_decode(response.body)
         self.assertItemsEqual(json['data']['objs'], [
-            {"_id": str(r2), "pid": "1000", "fs": 1001},
-            {"_id": str(r4), "pid": "1002", "fs": 1003}
+            {'_id': str(r2), 'pid': '1000', 'fs': 1001},
+            {'_id': str(r4), 'pid': '1002', 'fs': 1003}
         ])
 
     def test_upload_image(self):
         self.sync_db.img.drop()
-        body='data=,dGVzdCBkYXRh'
-        response = self.fetch('/upload/', method="POST", body=body)
+        body = 'data=,dGVzdCBkYXRh'
+        response = self.fetch('/upload/', method='POST', body=body)
         self.assertEqual(response.code, 200)
         json = json_decode(response.body)
         _id = ObjectId(json['data']['id'])
@@ -63,8 +71,8 @@ class TestWebApp(AsyncHTTPTestCase):
 
     def test_upload_image_w_pid(self):
         self.sync_db.img.drop()
-        body='data=,dGVzdCBkYXRhIGFnYWlu&id=5781d84e2fe7e60000000000'
-        response = self.fetch('/upload/', method="POST", body=body)
+        body = 'data=,dGVzdCBkYXRhIGFnYWlu&id=5781d84e2fe7e60000000000'
+        response = self.fetch('/upload/', method='POST', body=body)
         self.assertEqual(response.code, 200)
         json = json_decode(response.body)
         _id = ObjectId(json['data']['id'])
@@ -77,6 +85,7 @@ class TestWebApp(AsyncHTTPTestCase):
 
     def test_get_image(self):
         pass
+
 
 if __name__ == '__main__':
     unittest.main()
